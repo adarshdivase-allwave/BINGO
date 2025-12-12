@@ -8,24 +8,18 @@ import { getCurrentUser } from 'aws-amplify/auth';
 const ai = new GoogleGenerativeAI(process.env.API_KEY || '');
 
 // Pre-calculate database statistics
-const databaseStats = {
-  totalProducts: productDatabase.length,
-  byCategory: {} as Record<string, number>,
-  byBrand: {} as Record<string, number>,
-};
-
-productDatabase.forEach(p => {
-  databaseStats.byCategory[p.category || 'Unknown'] = (databaseStats.byCategory[p.category || 'Unknown'] || 0) + 1;
-  databaseStats.byBrand[p.brand] = (databaseStats.byBrand[p.brand] || 0) + 1;
-});
-
-const databaseString = JSON.stringify(productDatabase.map(p => ({
-  brand: p.brand,
-  model: p.model,
-  description: p.description,
-  category: p.category,
-  price: p.price
-})));
+// Helper to generate filtered database string
+const getFilteredDatabaseString = (allowedCategories: string[]): string => {
+  const filteredProducts = productDatabase.filter(p => allowedCategories.includes(p.category || ''));
+  return JSON.stringify(filteredProducts.map(p => ({
+    brand: p.brand,
+    model: p.model || p.awmdb_id || 'N/A',
+    description: p.description,
+    category: p.category,
+    price: p.price || p.price_inr,
+    currency: p.price_inr ? 'INR' : 'USD'
+  })));
+}
 
 /**
  * Helper function to search database for products matching criteria
@@ -58,17 +52,22 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   // Use double casting (unknown -> string[]) to avoid "Type 'unknown[]' is not assignable to type 'string[]'" errors
   const requiredSystems = (answers.requiredSystems as unknown as string[]) || ['display', 'video_conferencing', 'audio', 'connectivity_control', 'infrastructure', 'acoustics'];
 
+  // UPDATED CATEGORY MAPPING FOR NEW DATA STRUCTURE
   const categoryMap: Record<string, string[]> = {
-    display: ["Display"],
-    video_conferencing: ["Video Conferencing & Cameras"],
-    audio: ["Audio - Microphones", "Audio - DSP & Amplification", "Audio - Speakers"],
-    connectivity_control: ["Video Distribution & Switching", "Control System & Environmental"],
-    infrastructure: ["Cabling & Infrastructure", "Mounts & Racks"],
-    acoustics: ["Acoustic Treatment"],
+    display: ["Display", "IFPD", "Projector", "Screen", "Digital Signage", "Interactive Display"],
+    video_conferencing: ["Video Conferencing", "PTZ & Pro Video Cameras", "UC & Collaboration Devices", "Wireless Presentation", "Camera", "Video Bar"],
+    audio: ["Audio: Microphones & Conferencing", "Audio: DSP & Amplification", "Audio: Speakers", "Audio", "Microphone", "Speaker", "DSP", "Amplifier"],
+    connectivity_control: ["Video Distribution & Switching", "Control Systems & Processing", "Cables & Connectivity", "AV over IP", "Networking", "Wall Plate", "Floor Box"],
+    infrastructure: ["Mounts & Racks", "Cabling & Infrastructure", "Furniture", "Installation & Services", "Accessories & Services", "Power", "Rack"],
+    acoustics: ["Acoustic Treatment", "Lighting"],
   };
 
   const allowedCategories = requiredSystems.flatMap((system: string) => categoryMap[system] || []);
-  allowedCategories.push("Accessories & Services");
+  allowedCategories.push("Accessories & Services"); // Always include general accessories
+  allowedCategories.push("Installation & Services"); // Always include services
+
+  // Generate dynamic database string based on allowed categories
+  const curatedDatabaseString = getFilteredDatabaseString(allowedCategories);
 
   // Extract brand preferences with granular audio control
   const brandPreferences = {
@@ -103,7 +102,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.displays) {
     const brands = brandPreferences.displays.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const available = searchDatabase(brand, 'Display');
+      const available = searchDatabase(brand, 'Display'); // Check primary category
       if (available.length > 0) {
         dbAvailabilityReport.push(`✅ Database has ${available.length} ${brand} Display(s) - USE THESE FIRST`);
       } else {
@@ -193,8 +192,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   const prompt = `You are a world-class, Senior AV Solutions Architect (CTS-D Certified) with 25 years of experience. Your goal is to generate a **100% production-ready, fully AVIXA-compliant Bill of Quantities (BOQ)** that can be deployed immediately without modifications.
 
 **CUSTOM PRODUCT DATABASE (PRIORITY SOURCE #1):**
-Your company maintains a curated database of ${databaseStats.totalProducts} verified AV products across ${Object.keys(databaseStats.byCategory).length} categories.
-Database contains: ${Object.entries(databaseStats.byCategory).map(([cat, count]) => `${count} ${cat}`).join(', ')}
+Your company maintains a curated database of verified AV products.
 **YOU MUST CHECK THIS DATABASE FIRST FOR EVERY COMPONENT.**
 ${dbReport}
 
@@ -460,7 +458,7 @@ Return ONLY a JSON array of objects with these exact fields:
 - brand: string (MUST match Mandatory Brand Compliance)
 - model: string (specific model number)
 - quantity: number (calculated using formulas above)
-- unitPrice: number (realistic USD MSRP)
+- unitPrice: number (realistic MSRP in INR/Rupees)
 - totalPrice: number (quantity × unitPrice, will be recalculated)
 - source: 'database' | 'web'
 - priceSource: 'database' | 'estimated'
@@ -504,7 +502,7 @@ Return ONLY a JSON array of objects with these exact fields:
         role: 'user',
         parts: [
           { text: prompt },
-          { text: `Custom Product Database: ${databaseString}` }
+          { text: `Custom Product Database (Filtered for Relevance): ${curatedDatabaseString}` }
         ]
       }],
       generationConfig: {
@@ -603,7 +601,7 @@ export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Prom
         brand: { type: "string" },
         model: { type: "string" },
         quantity: { type: "number" },
-        unitPrice: { type: "number" },
+        unitPrice: { type: "number", description: "MSRP in INR" },
         totalPrice: { type: "number" },
         source: { type: "string", enum: ['database', 'web'] },
         priceSource: { type: "string", enum: ['database', 'estimated'] },
@@ -613,12 +611,16 @@ export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Prom
   };
 
   try {
+    // Extract valid categories from current BOQ to filter database
+    const relevantCategories = [...new Set(currentBoq.map(item => item.category))];
+    const curatedDatabaseString = getFilteredDatabaseString(relevantCategories);
+
     const response = await ai.getGenerativeModel({ model: model }).generateContent({
       contents: [{
         role: 'user',
         parts: [
           { text: prompt },
-          { text: `Custom Product Database: ${databaseString}` }
+          { text: `Custom Product Database (Filtered for Relevance): ${curatedDatabaseString}` }
         ]
       }],
       generationConfig: {
