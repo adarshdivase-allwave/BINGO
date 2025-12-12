@@ -53,7 +53,7 @@ const getAvailableBrands = (category: string): string[] => {
  * Generates a Bill of Quantities (BOQ) based on user requirements.
  */
 export const generateBoq = async (answers: Record<string, any>): Promise<Boq> => {
-  const model = 'gemini-2.5-pro';
+  const model = 'gemini-1.5-pro';
 
   // Cast the incoming answers property to a string array to satisfy TypeScript
   // Use double casting (unknown -> string[]) to avoid "Type 'unknown[]' is not assignable to type 'string[]'" errors
@@ -547,7 +547,7 @@ Return ONLY a JSON array of objects with these exact fields:
  * Refines an existing BOQ based on a user-provided prompt.
  */
 export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Promise<Boq> => {
-  const model = 'gemini-2.5-pro';
+  const model = 'gemini-1.5-pro';
   const prompt = `Refine the following Bill of Quantities (BOQ) based on the user's request. You are a CTS-D certified AV architect with 25 years of experience.
 
     Current BOQ (JSON):
@@ -664,7 +664,7 @@ export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Prom
  * Validates a BOQ against requirements and AVIXA best practices.
  */
 export const validateBoq = async (boq: Boq, requirements: string): Promise<ValidationResult> => {
-  const model = 'gemini-2.5-pro';
+  const model = 'gemini-1.5-pro';
   const prompt = `You are an expert AV system design auditor (CTS-D, AVIXA Certified). Perform a comprehensive technical audit of this Bill of Quantities (BOQ).
 
     User Requirements: "${requirements}"
