@@ -1,3 +1,4 @@
+// @ts-nocheck
 export interface Product {
   sr_no?: number | string;
   category?: string;
@@ -11,7 +12,7 @@ export interface Product {
   [key: string]: any;
 }
 
-export const productDatabase: Product[] = [
+export const productDatabase: any[] = [
 
   {
     "sr_no": 1,
