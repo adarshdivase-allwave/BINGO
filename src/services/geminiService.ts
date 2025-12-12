@@ -52,14 +52,14 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   // Use double casting (unknown -> string[]) to avoid "Type 'unknown[]' is not assignable to type 'string[]'" errors
   const requiredSystems = (answers.requiredSystems as unknown as string[]) || ['display', 'video_conferencing', 'audio', 'connectivity_control', 'infrastructure', 'acoustics'];
 
-  // UPDATED CATEGORY MAPPING FOR NEW DATA STRUCTURE
+  // UPDATED CATEGORY MAPPING FOR ACTUAL DATA VALUES
   const categoryMap: Record<string, string[]> = {
-    display: ["Display", "IFPD", "Projector", "Screen", "Digital Signage", "Interactive Display"],
-    video_conferencing: ["Video Conferencing", "PTZ & Pro Video Cameras", "UC & Collaboration Devices", "Wireless Presentation", "Camera", "Video Bar"],
-    audio: ["Audio: Microphones & Conferencing", "Audio: DSP & Amplification", "Audio: Speakers", "Audio", "Microphone", "Speaker", "DSP", "Amplifier"],
-    connectivity_control: ["Video Distribution & Switching", "Control Systems & Processing", "Cables & Connectivity", "AV over IP", "Networking", "Wall Plate", "Floor Box"],
-    infrastructure: ["Mounts & Racks", "Cabling & Infrastructure", "Furniture", "Installation & Services", "Accessories & Services", "Power", "Rack"],
-    acoustics: ["Acoustic Treatment", "Lighting"],
+    display: ["Display System", "Hiperwall System"],
+    video_conferencing: ["VC system", "VC System"],
+    audio: ["Audio System"],
+    connectivity_control: ["Cables & Connectors", "Cables and Connectors", "Control System", "Room Scheduler"],
+    infrastructure: ["Display support system", "Display Support System", "Display Supoort System", "Display support System", "AV Rack System", "AV Rack system"],
+    acoustics: ["Acoustic Treatment"], // None found in DB scan but keeping for safety
   };
 
   const allowedCategories = requiredSystems.flatMap((system: string) => categoryMap[system] || []);
