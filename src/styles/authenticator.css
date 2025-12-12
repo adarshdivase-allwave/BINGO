@@ -1,0 +1,455 @@
+/* Custom Authenticator Styles - Professional Dark Theme */
+
+:root {
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
+  --color-slate-600: #475569;
+  --color-slate-300: #cbd5e1;
+  --color-slate-200: #e2e8f0;
+  --color-slate-100: #f1f5f9;
+  --color-green-primary: #92D050;
+  --color-green-secondary: #7ac43e;
+  --color-blue-primary: #3b82f6;
+  --color-blue-dark: #1e40af;
+}
+
+/* Smooth animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Authenticator Container */
+[data-testid='authenticator'] {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-slate-900) 0%, #0a0f1a 50%, var(--color-slate-800) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', 'system-ui', 'sans-serif';
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Decorative background elements */
+[data-testid='authenticator']::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(146, 208, 80, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+[data-testid='authenticator']::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Main Container */
+.amplify-authenticator {
+  position: relative;
+  z-index: 10;
+}
+
+/* Form Section Container */
+.amplify-authenticator [data-testid='sign-in-form-section'],
+.amplify-authenticator [data-testid='sign-up-form-section'],
+.amplify-authenticator-sign-in,
+.amplify-authenticator-sign-up {
+  background: rgba(30, 41, 59, 0.8) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-radius: 16px !important;
+  padding: 3rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+  animation: slideInFromTop 0.6s ease-out;
+  max-width: 450px;
+  width: 100%;
+}
+
+/* Fieldset and form groupings */
+.amplify-authenticator fieldset {
+  border: none !important;
+}
+
+.amplify-authenticator [data-testid='sign-in-form-section']> :first-child,
+.amplify-authenticator [data-testid='sign-up-form-section']> :first-child {
+  margin-top: 0 !important;
+}
+
+/* Form labels */
+.amplify-authenticator label {
+  display: block;
+  color: var(--color-slate-100) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  margin-bottom: 0.75rem !important;
+  letter-spacing: 0.3px;
+}
+
+/* Input Fields */
+.amplify-authenticator input {
+  background-color: #1e293b !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.35) !important;
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 0.875rem 1.125rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  font-weight: 500 !important;
+}
+
+/* Force visibility of text/dots in all input fields */
+.amplify-authenticator input,
+.amplify-input,
+.amplify-field-group__control {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Autofill styling - ensure text is visible */
+.amplify-authenticator input:-webkit-autofill,
+.amplify-authenticator input:-webkit-autofill:hover,
+.amplify-authenticator input:-webkit-autofill:focus,
+.amplify-authenticator input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.35) !important;
+}
+
+.amplify-authenticator input::placeholder {
+  color: rgba(226, 232, 240, 0.6) !important;
+  font-weight: 400 !important;
+}
+
+.amplify-authenticator input:hover {
+  border-color: rgba(148, 163, 184, 0.5) !important;
+  background-color: #243249 !important;
+}
+
+.amplify-authenticator input:focus,
+.amplify-authenticator input:focus-visible {
+  background-color: #243249 !important;
+  border-color: var(--color-green-primary) !important;
+  box-shadow: 0 0 0 3px rgba(146, 208, 80, 0.15), inset 0 0 0 1px rgba(146, 208, 80, 0.2) !important;
+  outline: none !important;
+}
+
+/* Input group container */
+.amplify-authenticator [data-testid='sign-in-form-section']>div,
+.amplify-authenticator [data-testid='sign-up-form-section']>div {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Primary Button */
+.amplify-authenticator button[type='submit'],
+.amplify-authenticator [data-testid='sign-in-submit'] button,
+.amplify-authenticator [data-testid='sign-up-submit'] button {
+  background: linear-gradient(135deg, var(--color-green-primary) 0%, var(--color-green-secondary) 100%) !important;
+  color: var(--color-slate-900) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 1rem 1.5rem !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  width: 100% !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 10px 25px -5px rgba(146, 208, 80, 0.2) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.amplify-authenticator button[type='submit']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.3s ease;
+}
+
+.amplify-authenticator button[type='submit']:hover::before {
+  left: 100%;
+}
+
+.amplify-authenticator button[type='submit']:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-green-secondary) 0%, #6b9c2f 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 15px 35px -5px rgba(146, 208, 80, 0.3) !important;
+}
+
+.amplify-authenticator button[type='submit']:active:not(:disabled) {
+  transform: translateY(0) !important;
+}
+
+.amplify-authenticator button[type='submit']:disabled {
+  background: var(--color-slate-600) !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Secondary Buttons */
+.amplify-authenticator [role='button'],
+.amplify-authenticator button:not([type='submit']) {
+  color: var(--color-green-primary) !important;
+  background: transparent !important;
+  border: 1.5px solid var(--color-green-primary) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.amplify-authenticator [role='button']:hover,
+.amplify-authenticator button:not([type='submit']):hover {
+  background: rgba(146, 208, 80, 0.1) !important;
+  border-color: var(--color-green-secondary) !important;
+  color: var(--color-green-secondary) !important;
+}
+
+/* Links */
+.amplify-authenticator a {
+  color: var(--color-green-primary) !important;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease !important;
+}
+
+.amplify-authenticator a:hover {
+  color: var(--color-green-secondary) !important;
+  text-decoration: underline;
+}
+
+/* Tabs */
+.amplify-authenticator [role='tablist'] {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.amplify-authenticator [role='tab'] {
+  color: var(--color-slate-400) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease !important;
+  position: relative;
+}
+
+.amplify-authenticator [role='tab']:hover {
+  color: var(--color-slate-200) !important;
+}
+
+.amplify-authenticator [role='tab'][aria-selected='true'] {
+  color: var(--color-green-primary) !important;
+  border-bottom-color: var(--color-green-primary) !important;
+}
+
+/* Text and Headers */
+.amplify-authenticator h1,
+.amplify-authenticator h2,
+.amplify-authenticator h3 {
+  color: var(--color-slate-50) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px;
+}
+
+.amplify-authenticator h1 {
+  font-size: 2rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.amplify-authenticator p,
+.amplify-authenticator span:not([role='tab']) {
+  color: var(--color-slate-300) !important;
+  line-height: 1.6;
+}
+
+/* Small text */
+.amplify-authenticator small,
+.amplify-authenticator .text-small {
+  color: var(--color-slate-400) !important;
+  font-size: 0.875rem !important;
+}
+
+/* Error Messages */
+.amplify-authenticator [data-testid='error-text'],
+.amplify-authenticator [role='alert'],
+.amplify-authenticator [data-testid='sign-in-error'] {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%) !important;
+  border: 1px solid rgba(248, 113, 113, 0.3) !important;
+  color: #fecaca !important;
+  border-radius: 10px !important;
+  padding: 0.875rem 1.125rem !important;
+  margin-bottom: 1.5rem !important;
+  font-weight: 500;
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+/* Success Messages */
+.amplify-authenticator [data-testid='success-text'] {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.12) 0%, rgba(34, 197, 94, 0.08) 100%) !important;
+  border: 1px solid rgba(134, 239, 172, 0.3) !important;
+  color: #d1fae5 !important;
+  border-radius: 10px !important;
+  padding: 0.875rem 1.125rem !important;
+  margin-bottom: 1.5rem !important;
+  font-weight: 500;
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+/* Divider */
+.amplify-authenticator hr {
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.2), transparent) !important;
+  border: none;
+  height: 1px !important;
+  margin: 1.5rem 0 !important;
+}
+
+/* Header Container */
+.amplify-container>div:first-child {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+/* Logo styling */
+.amplify-authenticator-logo,
+.amplify-container svg {
+  filter: drop-shadow(0 4px 12px rgba(146, 208, 80, 0.2));
+}
+
+/* Checkbox and Radio styling */
+.amplify-authenticator input[type='checkbox'],
+.amplify-authenticator input[type='radio'] {
+  accent-color: var(--color-green-primary) !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
+
+/* Field wrapper */
+.amplify-authenticator [data-testid*='field'] {
+  margin-bottom: 1.5rem !important;
+}
+
+.amplify-authenticator [data-testid*='field']:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Loading state */
+.amplify-authenticator button[type='submit']:disabled {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  [data-testid='authenticator'] {
+    padding: 1.5rem;
+  }
+
+  .amplify-authenticator [data-testid='sign-in-form-section'],
+  .amplify-authenticator [data-testid='sign-up-form-section'],
+  .amplify-authenticator-sign-in,
+  .amplify-authenticator-sign-up {
+    padding: 2rem !important;
+    border-radius: 12px !important;
+  }
+
+  .amplify-authenticator h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .amplify-authenticator input {
+    padding: 0.75rem 1rem !important;
+    font-size: 16px !important;
+    /* Prevents zoom on iOS */
+  }
+
+  .amplify-authenticator button[type='submit'] {
+    padding: 0.875rem 1.5rem !important;
+  }
+
+  .amplify-authenticator label {
+    font-size: 0.9rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+
+  .amplify-authenticator [data-testid='sign-in-form-section'],
+  .amplify-authenticator [data-testid='sign-up-form-section'],
+  .amplify-authenticator-sign-in,
+  .amplify-authenticator-sign-up {
+    padding: 1.5rem !important;
+  }
+
+  .amplify-authenticator h1 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  [data-testid='authenticator'] {
+    display: none;
+  }
+}
