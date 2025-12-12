@@ -224,30 +224,36 @@ You must strictly adhere to the following brand constraints. Each category has s
 
 2.  **DATABASE vs. WEB PRIORITY (STRICT ENFORCEMENT):**
     
-    **STEP 1 - ALWAYS CHECK DATABASE FIRST:**
-    - For EVERY component you need to add, search the Custom Product Database JSON first
-    - Look for exact brand match in the relevant category
-    - **Example:** Need Samsung Display? Search database for: brand="Samsung" AND category="Display"
+    **STEP 1 - ALWAYS CHECK DATABASE FIRST (ABSOLUTE PRIORITY):**
+    - For EVERY component, you **MUST** search the Custom Product Database first.
+    - **CRITICAL:** If a product exists in the database that matches the requirement (Brand + Category), you **MUST** use it.
+    - Do **NOT** skip a database item because it looks "old" or "cheap" unless it is functionally incompatible.
     
-    **STEP 2 - IF FOUND IN DATABASE:**
+    **STEP 2 - IF FOUND IN DATABASE (PRICE HANDLING):**
     - ✅ **USE IT IMMEDIATELY** - Set source='database'
-    - If price exists: Use database price, set priceSource='database'
-    - If price is 0 or null: Keep item, estimate realistic price, set priceSource='estimated'
-    - **NEVER skip a database item** just because it lacks a price
+    - **Price Check:**
+        - If 'price' > 0: Use it. Set 'priceSource'='database'.
+        - If 'price' is 0, null, or missing: **YOU MUST STILL USE THE PRODUCT.**
+            - Estimate the price using your web knowledge.
+            - Set 'priceSource'='estimated'.
+            - **NEVER** discard a database product just because the price is missing.
     
-    **STEP 3 - IF NOT FOUND IN DATABASE:**
-    - ⚠️ Only then generate from your web knowledge
-    - Set source='web', priceSource='estimated'
-    - Add note in keyRemarks: "Item sourced from web knowledge - verify current availability"
+    **STEP 3 - IF NOT FOUND IN DATABASE (WEB CONTROL):**
+    - ⚠️ Only if the specific brand/model is TOTALLY ABSENT from the database may you look to the web.
+    - **MANDATORY WEB CONSTRAINTS:**
+        1.  **INDIA AVAILABILITY:** The product **MUST** be currently available for purchase in India.
+        2.  **LATEST MODEL:** You **MUST** select the latest generation model available in the Indian market. Do not choose discontinued items.
+    - Set 'source'='web', 'priceSource'='estimated'.
+    - Add note in keyRemarks: "Latest model sourced from web (India Market Availability Verified)"
     
     **STEP 4 - BRAND LOCK OVERRIDE:**
-    - If user requests "JBL Audio" but database has NO JBL products at all
-    - You MUST still generate JBL products from web knowledge (don't switch to Shure)
-    - Brand preference ALWAYS trumps database availability
+    - If user requests "JBL Audio" but database has NO JBL products at all:
+    - You **MUST** generate JBL products from web knowledge.
+    - Apply the **INDIA AVAILABILITY** and **LATEST MODEL** rules.
     
     **DATABASE SEARCH PRIORITY ORDER:**
-    1. Exact brand + category match in database → USE IT (source='database')
-    2. No database match but brand requested → Generate from web (source='web')
+    1. Exact brand + category match in database → USE IT (source='database') (Estimate price if needed)
+    2. No database match but brand requested → Generate from web (source='web') (Must be India-Available & Latest)
     3. No brand preference given → Use professional Tier 1 defaults from database if available
     
     **TRACKING:**
