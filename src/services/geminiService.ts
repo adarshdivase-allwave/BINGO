@@ -22,6 +22,13 @@ const getFilteredDatabaseString = (allowedCategories: string[]): string => {
 }
 
 /**
+ * Helper function to clean JSON output from AI response
+ */
+const cleanJsonOutput = (text: string): string => {
+  return text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+};
+
+/**
  * Helper function to search database for products matching criteria
  */
 const searchDatabase = (brand?: string, category?: string): any[] => {
@@ -510,7 +517,7 @@ Return ONLY a JSON array of objects with these exact fields:
       },
     });
 
-    const jsonText = response.response.text();
+    const jsonText = cleanJsonOutput(response.response.text());
     const boq: BoqItem[] = JSON.parse(jsonText);
 
     return boq.map((item: BoqItem) => ({
@@ -628,7 +635,7 @@ export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Prom
       },
     });
 
-    const jsonText = response.response.text();
+    const jsonText = cleanJsonOutput(response.response.text());
     const boq = JSON.parse(jsonText);
 
     return boq.map((item: BoqItem) => ({
@@ -796,7 +803,7 @@ export const validateBoq = async (boq: Boq, requirements: string): Promise<Valid
       },
     });
 
-    const jsonText = response.response.text();
+    const jsonText = cleanJsonOutput(response.response.text());
     const result = JSON.parse(jsonText);
 
     return {
