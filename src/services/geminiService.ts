@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { Boq, BoqItem, ProductDetails, Room, ValidationResult, GroundingSource } from '../types';
-import { productDatabase } from '../data/productData';
+import { productService } from './productService';
 import { logActivity } from './activityLogService';
 import { getCurrentUser } from 'aws-amplify/auth';
 
@@ -9,17 +9,6 @@ const ai = new GoogleGenerativeAI(process.env.API_KEY || '');
 
 // Pre-calculate database statistics
 // Helper to generate filtered database string
-const getFilteredDatabaseString = (allowedCategories: string[]): string => {
-  const filteredProducts = productDatabase.filter(p => allowedCategories.includes(p.category || ''));
-  return JSON.stringify(filteredProducts.map(p => ({
-    brand: p.brand,
-    model: p.model || p.awmdb_id || 'N/A',
-    description: p.description,
-    category: p.category,
-    price: p.price || p.price_inr,
-    currency: p.price_inr ? 'INR' : 'USD'
-  })));
-}
 
 /**
  * Helper function to clean JSON output from AI response
@@ -29,21 +18,11 @@ const cleanJsonOutput = (text: string): string => {
 };
 
 /**
- * Helper function to search database for products matching criteria
- */
-const searchDatabase = (brand?: string, category?: string): any[] => {
-  return productDatabase.filter(p => {
-    const brandMatch = !brand || p.brand.toLowerCase() === brand.toLowerCase();
-    const categoryMatch = !category || p.category === category;
-    return brandMatch && categoryMatch;
-  });
-};
-
-/**
  * Helper function to get available brands for a category from database
  */
 const getAvailableBrands = (category: string): string[] => {
-  const brands = productDatabase
+  const products = productService.getProducts();
+  const brands = products
     .filter(p => p.category === category)
     .map(p => p.brand);
   return [...new Set(brands)]; // Remove duplicates
@@ -53,7 +32,10 @@ const getAvailableBrands = (category: string): string[] => {
  * Generates a Bill of Quantities (BOQ) based on user requirements.
  */
 export const generateBoq = async (answers: Record<string, any>): Promise<Boq> => {
-  const model = 'gemini-2.0-flash';
+  const model = 'gemini-1.5-flash';
+
+  // Ensure product data is loaded
+  await productService.loadProducts();
 
   // Cast the incoming answers property to a string array to satisfy TypeScript
   // Use double casting (unknown -> string[]) to avoid "Type 'unknown[]' is not assignable to type 'string[]'" errors
@@ -74,7 +56,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   allowedCategories.push("Installation & Services"); // Always include services
 
   // Generate dynamic database string based on allowed categories
-  const curatedDatabaseString = getFilteredDatabaseString(allowedCategories);
+  const curatedDatabaseString = productService.getFilteredDatabaseString(allowedCategories);
 
   // Extract brand preferences with granular audio control
   const brandPreferences = {
@@ -109,7 +91,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.displays) {
     const brands = brandPreferences.displays.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const available = searchDatabase(brand, 'Display'); // Check primary category
+      const available = productService.searchProducts(brand, 'Display'); // Check primary category
       if (available.length > 0) {
         dbAvailabilityReport.push(`✅ Database has ${available.length} ${brand} Display(s) - USE THESE FIRST`);
       } else {
@@ -122,7 +104,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.microphones) {
     const brands = brandPreferences.microphones.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const mics = searchDatabase(brand, 'Audio - Microphones');
+      const mics = productService.searchProducts(brand, 'Audio - Microphones');
       if (mics.length > 0) {
         dbAvailabilityReport.push(`✅ Database has ${mics.length} ${brand} Microphone(s) - USE THESE FIRST`);
       } else {
@@ -134,7 +116,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.dspAmplifiers) {
     const brands = brandPreferences.dspAmplifiers.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const dsp = searchDatabase(brand, 'Audio - DSP & Amplification');
+      const dsp = productService.searchProducts(brand, 'Audio - DSP & Amplification');
       if (dsp.length > 0) {
         dbAvailabilityReport.push(`✅ Database has ${dsp.length} ${brand} DSP/Amplifier(s) - USE THESE FIRST`);
       } else {
@@ -146,7 +128,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.speakers) {
     const brands = brandPreferences.speakers.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const speakers = searchDatabase(brand, 'Audio - Speakers');
+      const speakers = productService.searchProducts(brand, 'Audio - Speakers');
       if (speakers.length > 0) {
         dbAvailabilityReport.push(`✅ Database has ${speakers.length} ${brand} Speaker(s) - USE THESE FIRST`);
       } else {
@@ -158,7 +140,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.vc) {
     const brands = brandPreferences.vc.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const available = searchDatabase(brand, 'Video Conferencing & Cameras');
+      const available = productService.searchProducts(brand, 'Video Conferencing & Cameras');
       if (available.length > 0) {
         dbAvailabilityReport.push(`✅ Database has ${available.length} ${brand} VC product(s) - USE THESE FIRST`);
       } else {
@@ -170,7 +152,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.mounts) {
     const brands = brandPreferences.mounts.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const available = searchDatabase(brand, 'Mounts & Racks');
+      const available = productService.searchProducts(brand, 'Mounts & Racks');
       if (available.length > 0) {
         dbAvailabilityReport.push(`✅ Database has ${available.length} ${brand} Mount(s) - USE THESE FIRST`);
       } else {
@@ -547,7 +529,7 @@ Return ONLY a JSON array of objects with these exact fields:
  * Refines an existing BOQ based on a user-provided prompt.
  */
 export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Promise<Boq> => {
-  const model = 'gemini-2.0-flash';
+  const model = 'gemini-1.5-flash';
   const prompt = `Refine the following Bill of Quantities (BOQ) based on the user's request. You are a CTS-D certified AV architect with 25 years of experience.
 
     Current BOQ (JSON):
@@ -620,7 +602,8 @@ export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Prom
   try {
     // Extract valid categories from current BOQ to filter database
     const relevantCategories = [...new Set(currentBoq.map(item => item.category))];
-    const curatedDatabaseString = getFilteredDatabaseString(relevantCategories);
+    await productService.loadProducts(); // Ensure data is loaded
+    const curatedDatabaseString = productService.getFilteredDatabaseString(relevantCategories);
 
     const response = await ai.getGenerativeModel({ model: model }).generateContent({
       contents: [{
@@ -664,7 +647,7 @@ export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Prom
  * Validates a BOQ against requirements and AVIXA best practices.
  */
 export const validateBoq = async (boq: Boq, requirements: string): Promise<ValidationResult> => {
-  const model = 'gemini-2.0-flash';
+  const model = 'gemini-1.5-flash';
   const prompt = `You are an expert AV system design auditor (CTS-D, AVIXA Certified). Perform a comprehensive technical audit of this Bill of Quantities (BOQ).
 
     User Requirements: "${requirements}"

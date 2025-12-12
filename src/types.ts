@@ -13,6 +13,19 @@ export interface BoqItem {
   priceSource: 'database' | 'estimated';
 }
 
+export interface Product {
+  sr_no?: number | string;
+  category?: string;
+  sub_category?: string;
+  awmdb_id?: string;
+  description?: string;
+  brand: string;
+  model?: string;
+  price_inr?: number;
+  price?: number;
+  [key: string]: any;
+}
+
 export type Boq = BoqItem[];
 
 export type ViewMode = 'grouped' | 'list';
