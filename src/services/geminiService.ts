@@ -32,7 +32,7 @@ const getAvailableBrands = (category: string): string[] => {
  * Generates a Bill of Quantities (BOQ) based on user requirements.
  */
 export const generateBoq = async (answers: Record<string, any>): Promise<Boq> => {
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-pro';
 
   // Ensure product data is loaded
   await productService.loadProducts();
