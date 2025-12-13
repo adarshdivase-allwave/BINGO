@@ -625,7 +625,7 @@ Return ONLY a JSON array of objects with these exact fields:
  * Refines an existing BOQ based on a user-provided prompt.
  */
 export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Promise<Boq> => {
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-pro';
   const prompt = `Refine the following Bill of Quantities (BOQ) based on the user's request. You are a CTS-D certified AV architect with 25 years of experience.
 
     Current BOQ (JSON):
@@ -743,7 +743,7 @@ export const refineBoq = async (currentBoq: Boq, refinementPrompt: string): Prom
  * Validates a BOQ against requirements and AVIXA best practices.
  */
 export const validateBoq = async (boq: Boq, requirements: string): Promise<ValidationResult> => {
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-pro';
   const prompt = `You are an expert AV system design auditor (CTS-D, AVIXA Certified). Perform a comprehensive technical audit of this Bill of Quantities (BOQ).
 
     User Requirements: "${requirements}"
@@ -923,7 +923,7 @@ export const validateBoq = async (boq: Boq, requirements: string): Promise<Valid
  * Fetches product details using Google Search grounding.
  */
 export const fetchProductDetails = async (productName: string): Promise<ProductDetails> => {
-  const model = 'gemini-2.5-flash';
+  const model = 'gemini-2.5-pro';
   const prompt = `Provide a comprehensive technical and functional overview for the AV product: "${productName}". 
     
     Include:
@@ -971,7 +971,7 @@ export const fetchProductDetails = async (productName: string): Promise<ProductD
  * Creates a dedicated chat session for the GenBOQ assistant.
  */
 export const createGenBoqChat = () => {
-  const model = 'gemini-2.5-flash';
+  const model = 'gemini-2.5-pro';
   const systemInstruction = `You are the helpful AI assistant for GenBOQ, an intelligent application for generating Audio-Visual Bill of Quantities (BOQ).
 
 **Your Goal:** Help users understand how to use GenBOQ, explain its features, provide AV system design advice, and guide them through the BOQ generation process.
