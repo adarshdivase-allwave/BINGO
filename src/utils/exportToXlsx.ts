@@ -1037,7 +1037,7 @@ async function addTermsAndConditionsSheet(workbook: ExcelJS.Workbook, branding: 
     });
 }
 
-async function populateRoomBoqSheet(workbook: ExcelJS.Workbook, room: RoomData, styles: any, usdToInrRate: number, gstRates: any, branding: BrandingSettings, viewMode: ViewMode) {
+async function populateRoomBoqSheet(workbook: ExcelJS.Workbook, room: RoomData, styles: any, usdToInrRate: number, gstRates: any, branding: BrandingSettings, viewMode: ViewMode, selectedCurrency: Currency) {
     const safeName = room.name.replace(/[\\/*?:"<>|]/g, '').substring(0, 25);
     const sheet = workbook.addWorksheet(`BOQ - ${safeName}`);
 
@@ -1385,7 +1385,7 @@ export const exportToXlsx = async (
 
     for (const room of roomsData) {
         if (room.boq_items && room.boq_items.length > 0) {
-            await populateRoomBoqSheet(workbook, room, STYLES, 1, projectDetails.gst_rates || {}, branding, viewMode);
+            await populateRoomBoqSheet(workbook, room, STYLES, 1, projectDetails.gst_rates || {}, branding, viewMode, selectedCurrency);
         }
     }
 
