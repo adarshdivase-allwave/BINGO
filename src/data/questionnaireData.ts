@@ -477,6 +477,32 @@ export const questionnaire: QuestionnaireSection[] = [
         ],
       },
       {
+        id: 'avOverIpRequired',
+        text: 'Is an AV over IP (Networked AV) solution required for video distribution?',
+        type: 'select',
+        options: [
+          { label: 'Yes, AV over IP is required', value: 'yes' },
+          { label: 'No, standard HDBaseT/HDMI routing is sufficient', value: 'no' },
+        ],
+      },
+      {
+        id: 'avOverIpBrands',
+        text: 'Preferred AV over IP Brands?',
+        type: 'multiple-choice',
+        options: [
+          { label: 'Crestron (NVX)', value: 'Crestron' },
+          { label: 'Extron (NAV)', value: 'Extron' },
+          { label: 'AMX (SVS)', value: 'AMX' },
+          { label: 'Lightware (VINX)', value: 'Lightware' },
+          { label: 'Kramer (KDS)', value: 'Kramer' },
+          { label: 'Atlona (OmniStream)', value: 'Atlona' },
+          { label: 'Aurora Multimedia', value: 'Aurora' },
+          { label: 'ZeeVee', value: 'ZeeVee' },
+          { label: 'Just Add Power', value: 'Just Add Power' },
+          { label: 'Seada Technology', value: 'Seada Technology' },
+        ],
+      },
+      {
         id: 'connectivityBrands',
         text: 'Any preferred connectivity or infrastructure brands?',
         type: 'multiple-choice',

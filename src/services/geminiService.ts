@@ -152,6 +152,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
     vc: Array.isArray(answers.vcBrands) ? answers.vcBrands.join(', ') : '',
     connectivity: Array.isArray(answers.connectivityBrands) ? answers.connectivityBrands.join(', ') : '',
     control: Array.isArray(answers.controlBrands) ? answers.controlBrands.join(', ') : '',
+    avOverIp: Array.isArray(answers.avOverIpBrands) ? answers.avOverIpBrands.join(', ') : '',
   };
 
   // Calculate room metrics
@@ -166,6 +167,23 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
 
   // Generate database availability report
   const dbAvailabilityReport: string[] = [];
+
+  if (answers.avOverIpRequired === 'yes') {
+    const brands = brandPreferences.avOverIp ? brandPreferences.avOverIp.split(',').map((b: string) => b.trim()) : [];
+    if (brands.length === 0) {
+      // Default to Tier 1 if no brand selected but AVoIP required
+      ["Crestron", "Extron", "AMX", "Lightware"].forEach(b => brands.push(b));
+    }
+    brands.forEach((brand: string) => {
+      // Search in Connectivity/Control related categories
+      const count = checkAvailability(brand, ["Control", "Control System", "Cables & Connectors"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} AVoIP/Control product(s) - USE THESE FIRST`);
+      } else {
+        dbAvailabilityReport.push(`⚠️ Database has NO ${brand} AVoIP products - Generate Encoders/Decoders from web knowledge`);
+      }
+    });
+  }
 
   if (brandPreferences.displays) {
     const brands = brandPreferences.displays.split(',').map((b: string) => b.trim());
@@ -317,10 +335,23 @@ You must strictly adhere to the following brand constraints. Each category has s
     - If "Control System" is NOT in the list, DO NOT generate control processors or touch panels.
     - **EXCEPTION:** Always include essential "Infrastructure" (cables, racks, power) and "Services" (installation) unless explicitly impossible.
     
+    *   **AV over IP:** ${answers.avOverIpRequired === 'yes' ? `YES - NETWORKED AV REQUIRED. You MUST generate AV over IP Encoders for each source and Decoders for each display/projector. Preferred Brand: ${brandPreferences.avOverIp}` : 'No'}
+    
     **CRITICAL RULES:**
+    
+    1.  **BRAND LOCK (HIGHEST PRIORITY):**
+    **SPECIFIC SYSTEM INSTRUCTIONS:**
+    
+    *   **IF AV OVER IP IS REQUIRED:**
+        *   Generate **Encoders** for: Every HDMI Input, Camera, and PC Source.
+        *   Generate **Decoders** for: Every Display and Projector.
+        *   Include a **Netgear AV Line Managed Switch** (e.g., M4250/M4300 series) capable of handling the bandwidth.
+        *   Use the preferred brand (e.g., Crestron NVX, Extron NAV, AMX SVS) if specified.
+        *   **Do NOT** include a traditional Matrix Switcher if AV over IP is selected.
 
-1.  **BRAND LOCK (HIGHEST PRIORITY):**
-    *   If the user specified a brand (e.g., "JBL" for Audio), you **MUST ONLY** generate items from that brand for that entire category.
+    *   **IF MATRIX SWITCHER IS REQUIRED (and AV over IP is NO):**
+        *   Generate a dedicated HDBaseT/HDMI Matrix Switcher sized for Inputs x Outputs.
+*   If the user specified a brand (e.g., "JBL" for Audio), you **MUST ONLY** generate items from that brand for that entire category.
     *   **Scenario:** User wants "JBL" Audio. Database has JBL Speakers but NO JBL Microphones.
     *   **Action:** You MUST generate a valid JBL Microphone model using your internal knowledge (Source: 'web', PriceSource: 'estimated').
     *   **FORBIDDEN:** Do NOT switch brands. Brand preference trumps Database availability.
