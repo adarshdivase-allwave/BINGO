@@ -118,9 +118,9 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
     display: ["Display System", "Hiperwall System"],
     video_conferencing: ["VC system", "VC System"],
     audio: ["Audio System"],
-    connectivity_control: ["Cables & Connectors", "Cables and Connectors", "Control System", "Room Scheduler"],
+    connectivity_control: ["Cables & Connectors", "Cables and Connectors", "Control", "Control System", "Room Scheduler"],
     infrastructure: ["Display support system", "Display Support System", "Display Supoort System", "Display support System", "AV Rack System", "AV Rack system"],
-    acoustics: ["Acoustic Treatment"], // None found in DB scan but keeping for safety
+    acoustics: ["Acoustic Treatment"],
   };
 
   const allowedCategories = requiredSystems.flatMap((system: string) => categoryMap[system] || []);
@@ -128,6 +128,14 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   allowedCategories.push("Installation & Services"); // Always include services
 
 
+  // Helper to check availability across multiple categories
+  const checkAvailability = (brand: string, categories: string[]): number => {
+    let total = 0;
+    categories.forEach(cat => {
+      total += productService.searchProducts(brand, cat).length;
+    });
+    return total;
+  };
 
   // Extract brand preferences with granular audio control
   const brandPreferences = {
@@ -136,7 +144,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
     racks: Array.isArray(answers.rackBrands) ? answers.rackBrands.join(', ') : '',
     // Granular audio brand preferences (new approach)
     microphones: Array.isArray(answers.microphoneBrands) ? answers.microphoneBrands.join(', ') :
-      (Array.isArray(answers.audioBrands) ? answers.audioBrands.join(', ') : ''), // Fallback to old audioBrands if new field doesn't exist
+      (Array.isArray(answers.audioBrands) ? answers.audioBrands.join(', ') : ''),
     dspAmplifiers: Array.isArray(answers.dspAmplifierBrands) ? answers.dspAmplifierBrands.join(', ') :
       (Array.isArray(answers.audioBrands) ? answers.audioBrands.join(', ') : ''),
     speakers: Array.isArray(answers.speakerBrands) ? answers.speakerBrands.join(', ') :
@@ -162,9 +170,10 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.displays) {
     const brands = brandPreferences.displays.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const available = productService.searchProducts(brand, 'Display'); // Check primary category
-      if (available.length > 0) {
-        dbAvailabilityReport.push(`✅ Database has ${available.length} ${brand} Display(s) - USE THESE FIRST`);
+      // Displays are in "Display System" and "Hiperwall System"
+      const count = checkAvailability(brand, ["Display System", "Hiperwall System"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} Display(s) - USE THESE FIRST`);
       } else {
         dbAvailabilityReport.push(`⚠️ Database has NO ${brand} Displays - Generate from web knowledge`);
       }
@@ -175,9 +184,10 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.microphones) {
     const brands = brandPreferences.microphones.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const mics = productService.searchProducts(brand, 'Audio - Microphones');
-      if (mics.length > 0) {
-        dbAvailabilityReport.push(`✅ Database has ${mics.length} ${brand} Microphone(s) - USE THESE FIRST`);
+      // Audio items are all in "Audio System"
+      const count = checkAvailability(brand, ["Audio System"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} Microphone(s) (in Audio System) - USE THESE FIRST`);
       } else {
         dbAvailabilityReport.push(`⚠️ Database has NO ${brand} Microphones - Generate from web knowledge`);
       }
@@ -187,9 +197,9 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.dspAmplifiers) {
     const brands = brandPreferences.dspAmplifiers.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const dsp = productService.searchProducts(brand, 'Audio - DSP & Amplification');
-      if (dsp.length > 0) {
-        dbAvailabilityReport.push(`✅ Database has ${dsp.length} ${brand} DSP/Amplifier(s) - USE THESE FIRST`);
+      const count = checkAvailability(brand, ["Audio System"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} DSP/Amplifier(s) (in Audio System) - USE THESE FIRST`);
       } else {
         dbAvailabilityReport.push(`⚠️ Database has NO ${brand} DSP/Amplifiers - Generate from web knowledge`);
       }
@@ -199,9 +209,9 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.speakers) {
     const brands = brandPreferences.speakers.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const speakers = productService.searchProducts(brand, 'Audio - Speakers');
-      if (speakers.length > 0) {
-        dbAvailabilityReport.push(`✅ Database has ${speakers.length} ${brand} Speaker(s) - USE THESE FIRST`);
+      const count = checkAvailability(brand, ["Audio System"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} Speaker(s) (in Audio System) - USE THESE FIRST`);
       } else {
         dbAvailabilityReport.push(`⚠️ Database has NO ${brand} Speakers - Generate from web knowledge`);
       }
@@ -211,9 +221,9 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.vc) {
     const brands = brandPreferences.vc.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const available = productService.searchProducts(brand, 'Video Conferencing & Cameras');
-      if (available.length > 0) {
-        dbAvailabilityReport.push(`✅ Database has ${available.length} ${brand} VC product(s) - USE THESE FIRST`);
+      const count = checkAvailability(brand, ["VC system", "VC System"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} VC product(s) - USE THESE FIRST`);
       } else {
         dbAvailabilityReport.push(`⚠️ Database has NO ${brand} VC products - Generate from web knowledge`);
       }
@@ -223,11 +233,24 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.mounts) {
     const brands = brandPreferences.mounts.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const available = productService.searchProducts(brand, 'Mounts & Racks');
-      if (available.length > 0) {
-        dbAvailabilityReport.push(`✅ Database has ${available.length} ${brand} Mount(s) - USE THESE FIRST`);
+      // Mounts can be in Display System or Display Support System
+      const count = checkAvailability(brand, ["Display System", "Display support system", "Display Support System"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} Mount(s) - USE THESE FIRST`);
       } else {
         dbAvailabilityReport.push(`⚠️ Database has NO ${brand} Mounts - Generate from web knowledge`);
+      }
+    });
+  }
+
+  if (brandPreferences.control) {
+    const brands = brandPreferences.control.split(',').map((b: string) => b.trim());
+    brands.forEach((brand: string) => {
+      const count = checkAvailability(brand, ["Control", "Control System", "Cables & Connectors"]);
+      if (count > 0) {
+        dbAvailabilityReport.push(`✅ Database has ${count} ${brand} Control product(s) - USE THESE FIRST`);
+      } else {
+        dbAvailabilityReport.push(`⚠️ Database has NO ${brand} Control products - Generate from web knowledge`);
       }
     });
   }
