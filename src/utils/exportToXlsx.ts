@@ -1163,9 +1163,18 @@ async function populateRoomBoqSheet(workbook: ExcelJS.Workbook, room: RoomData, 
 
     if (viewMode === 'grouped') {
         const defaultCategoryOrder = [
-            "Display", "Video Conferencing & Cameras", "Audio - Microphones", "Audio - DSP & Amplification",
-            "Audio - Speakers", "Video Distribution & Switching", "Control System & Environmental",
-            "Cabling & Infrastructure", "Mounts & Racks", "Acoustic Treatment", "Accessories & Services"
+            "Display System",
+            "Display Support System", // Mounts next to displays
+            "VC System",
+            "Audio System",
+            "Control System",
+            "Cables & Connectors",
+            "AV Rack System",
+            "Hiperwall System",
+            "Room Scheduler",
+            "Acoustic Treatment",
+            "Accessories & Services",
+            "Installation & Services"
         ];
 
         const groupedItems: { [key: string]: any[] } = {};
@@ -1197,7 +1206,94 @@ async function populateRoomBoqSheet(workbook: ExcelJS.Workbook, room: RoomData, 
     } else {
         (room.boq_items || []).forEach(renderItemRow);
     }
+
+    // ==================== GRAND TOTAL ROW ====================
+    let grandSubtotal = 0;
+    let grandSgst = 0;
+    let grandCgst = 0;
+    let grandTotalTax = 0;
+    let grandFinalTotal = 0;
+
+    (room.boq_items || []).forEach(item => {
+        const unitPrice = round2(item.price);
+        const subtotal = round2(unitPrice * (item.quantity || 1));
+        const gstRate = item.gst_rate || 18;
+        const sgstRate = gstRate / 2;
+        const cgstRate = gstRate / 2;
+        const sgstAmount = round2(subtotal * (sgstRate / 100));
+        const cgstAmount = round2(subtotal * (cgstRate / 100));
+        const totalTax = round2(sgstAmount + cgstAmount);
+
+        grandSubtotal += subtotal;
+        grandSgst += sgstAmount;
+        grandCgst += cgstAmount;
+        grandTotalTax += totalTax;
+        grandFinalTotal += (subtotal + totalTax);
+    });
+
+    const totalRowIndex = sheet.rowCount + 2;
+    // Merge label cells
+    sheet.mergeCells(`A${totalRowIndex}:F${totalRowIndex}`);
+    const labelCell = sheet.getCell(`A${totalRowIndex}`);
+    labelCell.value = "GRAND TOTAL";
+    labelCell.font = { ...STYLES.bold_font, size: 12 };
+    labelCell.fill = STYLES.grand_total_fill;
+    labelCell.alignment = { horizontal: 'right', vertical: 'middle' };
+    labelCell.border = STYLES.thin_border;
+    // Apply border to merged cells
+    ['B', 'C', 'D', 'E', 'F'].forEach(c => sheet.getCell(`${c}${totalRowIndex}`).border = STYLES.thin_border);
+
+    // Subtotal
+    const subtotalCell = sheet.getCell(`H${totalRowIndex}`);
+    subtotalCell.value = grandSubtotal;
+    subtotalCell.numFmt = STYLES.currency_format;
+    subtotalCell.font = STYLES.bold_font;
+    subtotalCell.fill = STYLES.grand_total_fill;
+    subtotalCell.border = STYLES.thin_border;
+
+    // SGST
+    const sgstCell = sheet.getCell(`J${totalRowIndex}`);
+    sgstCell.value = grandSgst;
+    sgstCell.numFmt = STYLES.currency_format;
+    sgstCell.font = STYLES.bold_font;
+    sgstCell.fill = STYLES.grand_total_fill;
+    sgstCell.border = STYLES.thin_border;
+
+    // CGST
+    const cgstCell = sheet.getCell(`L${totalRowIndex}`);
+    cgstCell.value = grandCgst;
+    cgstCell.numFmt = STYLES.currency_format;
+    cgstCell.font = STYLES.bold_font;
+    cgstCell.fill = STYLES.grand_total_fill;
+    cgstCell.border = STYLES.thin_border;
+
+    // Total Tax
+    const taxCell = sheet.getCell(`M${totalRowIndex}`);
+    taxCell.value = grandTotalTax;
+    taxCell.numFmt = STYLES.currency_format;
+    taxCell.font = STYLES.bold_font;
+    taxCell.fill = STYLES.grand_total_fill;
+    taxCell.border = STYLES.thin_border;
+
+    // Final Total (using a merged cell or just remark column for space?)
+    // Let's put it in N
+    // But column ordering: H=Total, J=SGST, L=CGST, M=Total Tax. 
+    // We want the Final Pay amount. Let's put it in N (Remarks) or create a new summary block?
+    // Let's assume Grand Total = Subtotal + Taxes.
+    // The previous columns sum up nicely.
+    // Let's add a robust "Total Payable" row below.
+
+    // Actually, let's keep it in just one row for compactness, maybe reuse N for "Total Payable" text
+
+    const finalTotalLabel = sheet.getCell(`N${totalRowIndex}`);
+    finalTotalLabel.value = `Total: ${selectedCurrency === 'INR' ? '₹' : '$'}${grandFinalTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    finalTotalLabel.font = { ...STYLES.bold_font, size: 12 };
+    finalTotalLabel.fill = STYLES.grand_total_fill;
+    finalTotalLabel.alignment = { horizontal: 'right', vertical: 'middle' };
+    finalTotalLabel.border = STYLES.thin_border;
 }
+
+
 
 // ==================== MAIN FUNCTION ====================
 

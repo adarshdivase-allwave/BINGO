@@ -116,10 +116,10 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   // UPDATED CATEGORY MAPPING FOR ACTUAL DATA VALUES
   const categoryMap: Record<string, string[]> = {
     display: ["Display System", "Hiperwall System"],
-    video_conferencing: ["VC system", "VC System"],
+    video_conferencing: ["VC System"],
     audio: ["Audio System"],
-    connectivity_control: ["Cables & Connectors", "Cables and Connectors", "Control", "Control System", "Room Scheduler"],
-    infrastructure: ["Display support system", "Display Support System", "Display Supoort System", "Display support System", "AV Rack System", "AV Rack system"],
+    connectivity_control: ["Cables & Connectors", "Control System", "Room Scheduler"],
+    infrastructure: ["Display Support System", "AV Rack System"],
     acoustics: ["Acoustic Treatment"],
   };
 
@@ -176,7 +176,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
     }
     brands.forEach((brand: string) => {
       // Search in Connectivity/Control related categories
-      const count = checkAvailability(brand, ["Control", "Control System", "Cables & Connectors"]);
+      const count = checkAvailability(brand, ["Control System", "Cables & Connectors"]);
       if (count > 0) {
         dbAvailabilityReport.push(`✅ Database has ${count} ${brand} AVoIP/Control product(s) - USE THESE FIRST`);
       } else {
@@ -239,7 +239,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.vc) {
     const brands = brandPreferences.vc.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const count = checkAvailability(brand, ["VC system", "VC System"]);
+      const count = checkAvailability(brand, ["VC System"]);
       if (count > 0) {
         dbAvailabilityReport.push(`✅ Database has ${count} ${brand} VC product(s) - USE THESE FIRST`);
       } else {
@@ -252,7 +252,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
     const brands = brandPreferences.mounts.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
       // Mounts can be in Display System or Display Support System
-      const count = checkAvailability(brand, ["Display System", "Display support system", "Display Support System"]);
+      const count = checkAvailability(brand, ["Display System", "Display Support System"]);
       if (count > 0) {
         dbAvailabilityReport.push(`✅ Database has ${count} ${brand} Mount(s) - USE THESE FIRST`);
       } else {
@@ -264,7 +264,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   if (brandPreferences.control) {
     const brands = brandPreferences.control.split(',').map((b: string) => b.trim());
     brands.forEach((brand: string) => {
-      const count = checkAvailability(brand, ["Control", "Control System", "Cables & Connectors"]);
+      const count = checkAvailability(brand, ["Control System", "Cables & Connectors"]);
       if (count > 0) {
         dbAvailabilityReport.push(`✅ Database has ${count} ${brand} Control product(s) - USE THESE FIRST`);
       } else {
@@ -1123,7 +1123,7 @@ If asked about missing items, suggest: "Use the 'Validate BOQ' button to run a c
 
 If asked about modifying the BOQ, explain: "Use the 'Refine with AI' feature. Just type your request in natural language like 'add a second display' or 'change audio brand to QSC' and the AI will update the entire BOQ accordingly."`;
 
-  const genModel = ai.getGenerativeModel({ model: model });
+  const genModel = ai.getGenerativeModel({ model: model, systemInstruction: systemInstruction });
   const chat = genModel.startChat();
 
   // Add system instruction to the chat history by starting with a note

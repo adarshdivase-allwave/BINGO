@@ -43,7 +43,7 @@ const Chatbot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await chatSessionRef.current.sendMessage({ message: userMessage });
+      const response = await chatSessionRef.current.sendMessage(userMessage);
       const modelText = response.text || "I'm sorry, I couldn't generate a response.";
       setMessages(prev => [...prev, { role: 'model', text: modelText }]);
     } catch (error) {
@@ -59,32 +59,30 @@ const Chatbot: React.FC = () => {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 p-4 rounded-full shadow-lg transition-all duration-300 z-50 flex items-center justify-center ${
-          isOpen 
-            ? 'bg-slate-200 text-slate-800 rotate-90 dark:bg-slate-700 dark:text-white' 
+        className={`fixed bottom-6 right-6 p-4 rounded-full shadow-lg transition-all duration-300 z-50 flex items-center justify-center ${isOpen
+            ? 'bg-slate-200 text-slate-800 rotate-90 dark:bg-slate-700 dark:text-white'
             : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'
-        }`}
+          }`}
         aria-label="Toggle Help Chat"
       >
         {isOpen ? <XMarkIcon className="h-6 w-6" /> : <ChatBubbleIcon className="h-6 w-6" />}
       </button>
 
       {/* Chat Window */}
-      <div 
-        className={`fixed bottom-24 right-6 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-300 ease-in-out transform z-50 flex flex-col ${
-          isOpen ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-10 opacity-0 scale-95 pointer-events-none'
-        }`}
+      <div
+        className={`fixed bottom-24 right-6 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-300 ease-in-out transform z-50 flex flex-col ${isOpen ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-10 opacity-0 scale-95 pointer-events-none'
+          }`}
         style={{ height: '500px', maxHeight: 'calc(100vh - 120px)' }}
       >
         {/* Header */}
         <div className="bg-blue-600 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="bg-white/20 p-1.5 rounded-full">
-               <ChatBubbleIcon className="h-5 w-5 text-white" />
+              <ChatBubbleIcon className="h-5 w-5 text-white" />
             </div>
             <div>
-                <h3 className="text-white font-bold text-sm">BINGO Assistant</h3>
-                <p className="text-blue-100 text-xs">Ask me about features or AV design</p>
+              <h3 className="text-white font-bold text-sm">BINGO Assistant</h3>
+              <p className="text-blue-100 text-xs">Ask me about features or AV design</p>
             </div>
           </div>
           <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white transition-colors">
@@ -95,16 +93,15 @@ const Chatbot: React.FC = () => {
         {/* Messages Area */}
         <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50">
           {messages.map((msg, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div 
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
-                  msg.role === 'user' 
-                    ? 'bg-blue-600 text-white rounded-br-none' 
+              <div
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${msg.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-br-none'
                     : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-600 rounded-bl-none'
-                }`}
+                  }`}
               >
                 {msg.text}
               </div>
