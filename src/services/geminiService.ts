@@ -307,7 +307,17 @@ You must strictly adhere to the following brand constraints. Each category has s
 *   **Control:** ${brandPreferences.control || 'Use Tier 1 defaults: Crestron, Extron, QSC'}
 *   **Racks:** ${brandPreferences.racks || 'Use Tier 1 defaults: Valrack, Middle Atlantic, Netrack'}
 
-**CRITICAL RULES:**
+    **SCOPE ENFORCEMENT (CRITICAL):**
+    The user has explicitly selected ONLY the following systems for this room:
+    ${JSON.stringify(allowedCategories)}
+    
+    **YOU MUST ONLY GENERATE LINE ITEMS BELONGING TO THESE CATEGORIES.**
+    - If "Audio System" is NOT in the list, DO NOT generate Mics, Speakers, or DSPs.
+    - If "Video Conferencing System" is NOT in the list, DO NOT generate cameras or codecs.
+    - If "Control System" is NOT in the list, DO NOT generate control processors or touch panels.
+    - **EXCEPTION:** Always include essential "Infrastructure" (cables, racks, power) and "Services" (installation) unless explicitly impossible.
+    
+    **CRITICAL RULES:**
 
 1.  **BRAND LOCK (HIGHEST PRIORITY):**
     *   If the user specified a brand (e.g., "JBL" for Audio), you **MUST ONLY** generate items from that brand for that entire category.
