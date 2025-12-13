@@ -74,7 +74,10 @@ class ProductService {
         });
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
     /**
      * Generates a filtered string representation for the LLM context.
      * Optimizes size by limiting items per brand/category to prevent token overflow.
@@ -86,6 +89,7 @@ class ProductService {
         // This prevents one massive category from dominating the context
         const groups: Record<string, Product[]> = {};
 
+<<<<<<< HEAD
         // Explicitly prioritize Tier 1 brands to ensure they survive truncation
         const TIER_1_BRANDS = ['samsung', 'lg', 'sony', 'crestron', 'extron', 'shure', 'sennheiser', 'qsc', 'biamp', 'yealink', 'poly', 'logitech'];
 
@@ -97,6 +101,12 @@ class ProductService {
             const limit = TIER_1_BRANDS.includes(p.brand.toLowerCase()) ? 30 : limitPerGroup;
 
             if (groups[key].length < limit) {
+=======
+        filtered.forEach(p => {
+            const key = `${p.category}|${p.brand}`;
+            if (!groups[key]) groups[key] = [];
+            if (groups[key].length < limitPerGroup) {
+>>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
                 groups[key].push(p);
             }
         });
@@ -107,12 +117,16 @@ class ProductService {
             description: p.description,
             category: p.category,
             price: p.price || p.price_inr,
+<<<<<<< HEAD
             priceSource: p.price_estimate_required ? 'estimate_required' : 'database',
+=======
+>>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
             currency: p.price_inr ? 'INR' : 'USD'
         }));
 
         return JSON.stringify(optimizedList);
     }
+<<<<<<< HEAD
 
     /**
      * Returns the FULL database string for Context Caching.
@@ -130,6 +144,8 @@ class ProductService {
         }));
         return JSON.stringify(optimizedList);
     }
+=======
+>>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
 }
 
 export const productService = ProductService.getInstance();
