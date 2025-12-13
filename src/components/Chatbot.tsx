@@ -44,7 +44,7 @@ const Chatbot: React.FC = () => {
 
     try {
       const response = await chatSessionRef.current.sendMessage(userMessage);
-      const modelText = response.text || "I'm sorry, I couldn't generate a response.";
+      const modelText = response.response.text() || "I'm sorry, I couldn't generate a response.";
       setMessages(prev => [...prev, { role: 'model', text: modelText }]);
     } catch (error) {
       console.error("Chat error:", error);
@@ -60,8 +60,8 @@ const Chatbot: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`fixed bottom-6 right-6 p-4 rounded-full shadow-lg transition-all duration-300 z-50 flex items-center justify-center ${isOpen
-            ? 'bg-slate-200 text-slate-800 rotate-90 dark:bg-slate-700 dark:text-white'
-            : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'
+          ? 'bg-slate-200 text-slate-800 rotate-90 dark:bg-slate-700 dark:text-white'
+          : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'
           }`}
         aria-label="Toggle Help Chat"
       >
@@ -99,8 +99,8 @@ const Chatbot: React.FC = () => {
             >
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${msg.role === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-600 rounded-bl-none'
+                  ? 'bg-blue-600 text-white rounded-br-none'
+                  : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-600 rounded-bl-none'
                   }`}
               >
                 {msg.text}
