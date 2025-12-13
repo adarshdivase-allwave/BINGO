@@ -10,11 +10,7 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.4",
-<<<<<<< HEAD
     "@google/generative-ai": "^0.24.1",
-=======
-    "@google/generative-ai": "^0.3.0",
->>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
     "aws-amplify": "^6.0.17",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
@@ -32,8 +28,4 @@
     "typescript": "^5.3.3",
     "vite": "^5.1.4"
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
