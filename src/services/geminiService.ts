@@ -94,7 +94,7 @@ const getAvailableBrands = (category: string): string[] => {
  * Generates a Bill of Quantities (BOQ) based on user requirements.
  */
 export const generateBoq = async (answers: Record<string, any>): Promise<Boq> => {
-  const modelName = 'gemini-1.5-pro-001'; // Fixed invalid '2.5' model
+  const modelName = 'gemini-2.5-pro'; // Fixed invalid '2.5' model
   let cachedContentName: string | undefined;
 
   // Attempt to use Context Caching
