@@ -94,7 +94,6 @@ const getAvailableBrands = (category: string): string[] => {
  * Generates a Bill of Quantities (BOQ) based on user requirements.
  */
 export const generateBoq = async (answers: Record<string, any>): Promise<Boq> => {
-<<<<<<< HEAD
   const modelName = 'gemini-1.5-pro-001'; // Fixed invalid '2.5' model
   let cachedContentName: string | undefined;
 
@@ -106,9 +105,6 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   } catch (e) {
     console.warn("Cache initialization failed, falling back to standard prompt:", e);
   }
-=======
-  const model = 'gemini-2.5-pro';
->>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
 
   // Ensure product data is loaded
   await productService.loadProducts();
@@ -131,12 +127,7 @@ export const generateBoq = async (answers: Record<string, any>): Promise<Boq> =>
   allowedCategories.push("Accessories & Services"); // Always include general accessories
   allowedCategories.push("Installation & Services"); // Always include services
 
-<<<<<<< HEAD
 
-=======
-  // Generate dynamic database string based on allowed categories
-  const curatedDatabaseString = productService.getFilteredDatabaseString(allowedCategories);
->>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
 
   // Extract brand preferences with granular audio control
   const brandPreferences = {
@@ -572,7 +563,6 @@ Return ONLY a JSON array of objects with these exact fields:
   };
 
   try {
-<<<<<<< HEAD
     // Determine prompt structure based on cache availability
     let promptParts: any[] = [{ text: prompt }];
 
@@ -591,20 +581,11 @@ Return ONLY a JSON array of objects with these exact fields:
       contents: [{
         role: 'user',
         parts: promptParts
-=======
-    const response = await ai.getGenerativeModel({ model: model }).generateContent({
-      contents: [{
-        role: 'user',
-        parts: [
-          { text: prompt },
-          { text: `Custom Product Database (Filtered for Relevance): ${curatedDatabaseString}` }
-        ]
->>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
       }],
       generationConfig: {
         temperature: 0.1,
       },
-<<<<<<< HEAD
+
     };
 
     if (cachedContentName) {
@@ -612,9 +593,7 @@ Return ONLY a JSON array of objects with these exact fields:
     }
 
     const response = await ai.getGenerativeModel({ model: modelName }).generateContent(requestOptions);
-=======
-    });
->>>>>>> c551120c60267f7d47c18632c7463dd31302d27a
+
 
     const jsonText = cleanJsonOutput(response.response.text());
     const boq: BoqItem[] = JSON.parse(jsonText);
